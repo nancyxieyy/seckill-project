@@ -67,7 +67,7 @@ cd seckill-project
 
 #### 4.2.3 运行后端:
 
-* 打开一个终端，进入 backend 目录
+* 打开一个终端，进入 backend 目录。
 
 * 运行命令: `mvn spring-boot:run`
 
@@ -77,7 +77,7 @@ cd seckill-project
 
 #### 4.3.1 安装依赖:
 
-* 打开另一个新的终端，进入 frontend 目录
+* 打开另一个新的终端，进入 frontend 目录。
 
 * 运行命令: `npm install`
 
