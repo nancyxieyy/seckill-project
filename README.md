@@ -33,7 +33,7 @@
 
 ## 3. 系统架构 (System Architecture)
 
-![System Architecture Diagram](docs/images/architecture.png)
+![System Architecture Diagram](docs/images/architecture.png?v=2)
 
 ## 4. 快速启动 (Quick Start)
 
