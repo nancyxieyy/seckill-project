@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import com.google.intern.backend.dto.LoginDto;
 import com.google.intern.backend.result.Result;
 import com.google.intern.backend.util.MD5Util;
+import com.google.intern.backend.util.JwtUtil;
 
 import java.util.Date;
 import java.util.UUID;
@@ -15,6 +16,9 @@ import java.util.UUID;
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
     public User findUserByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
@@ -62,6 +66,7 @@ public class UserService {
         }
 
         // 4. 登录成功 (未来我们会在这里返回JWT)
-        return Result.success("Login successful");
+        String token = jwtUtil.generateToken(user);
+        return Result.success(token);
     }
 }
