@@ -2,6 +2,7 @@ package com.google.intern.backend.controller;
 
 import java.util.List;
 
+import org.aspectj.lang.annotation.DeclareAnnotation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +43,7 @@ public class CartController {
 
     // 添加商品到购物车
     @PostMapping
-    public Result<CartItem> addToCart(@RequestHeader("Authorization")String authHeader, @RequestBody AddToCartDto addToCartDto) {
+    public Result<CartItem> addToCart(@RequestHeader("Authorization") String authHeader, @RequestBody AddToCartDto addToCartDto) {
         String token = authHeader.substring(7);
         Long userId = jwtUtil.getUserIdFromToken(token);
         CartItem cartItem = cartService.addToCart(userId, addToCartDto.getGoodsId(), addToCartDto.getQuantity());
@@ -59,7 +60,7 @@ public class CartController {
     // 移除购物车商品
     @DeleteMapping("/{itemId}")
     public Result<String> removeItem(@PathVariable Long itemId) {
-        cartService.removeItem(itemId);
+        cartService.removedItem(itemId);
         return Result.success("Item removed successfully");
     }
 }

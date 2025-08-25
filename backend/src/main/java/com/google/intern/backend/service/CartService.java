@@ -25,16 +25,16 @@ public class CartService {
      * 添加商品到购物车
      */
     public CartItem addToCart(Long userId, Long goodsId, Integer quantity) {
-        // 检查商品是否已经在该用户的购物车里
-        Optional<CartItem> existingOptional = cartRepository.findByUserIdAndGoodsId(userId, goodsId);
+        // 检查商品是否已在购物车中
+        Optional<CartItem> existingItemOptional = cartRepository.findByUserIdAndGoodsId(userId, goodsId);
 
-        if(existingOptional.isPresent()) {
+        if(existingItemOptional.isPresent()) {
             // 如果已经存在则增加数量
             CartItem existingItem = existingItemOptional.get();
             existingItem.setQuantity(existingItem.getQuantity() + quantity);
             return cartRepository.save(existingItem);
         } else {
-            // 如果不存在，则创建
+            // 如果不存在，则创建新的
             CartItem newItem = new CartItem();
             newItem.setUserId(userId);
             newItem.setGoodsId(goodsId);
@@ -44,12 +44,11 @@ public class CartService {
     }
 
     /**
-     * 更新购物车中某个商品的数量
+     * 更新购物车某个商品的数量
      */
     public CartItem updateItemQuantity(Long cartItemId, Integer quantity) {
-        // findById返回一个Optional，需要处理找不到的情况
-        CartItem item = cartRepository.findById(cartItemId)
-            .orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
+        // findById 返回一个Optional，处理找不到的情况
+        CartItem item = cartRepository.findById(cartItemId).orElseThrow(() -> new RuntimeException("Cart item not found with id: " + cartItemId));
         item.setQuantity(quantity);
         return cartRepository.save(item);
     }
@@ -57,7 +56,7 @@ public class CartService {
     /**
      * 从购物车中移除一个商品
      */
-    public void removeItem(Long cartItemId) {
+    public void removedItem(Long cartItemId) {
         cartRepository.deleteById(cartItemId);
     }
 }

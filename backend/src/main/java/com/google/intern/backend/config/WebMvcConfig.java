@@ -3,6 +3,7 @@ package com.google.intern.backend.config;
 import com.google.intern.backend.interceptor.JwtInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -22,5 +23,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/goods/**",      // 假设商品列表和详情所有人都能看，也放行
                         "/api/hello"          // 放行测试接口
                 );
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/api/**")
+                .allowedOrigins("http://localhost:3001") // 允许来自3001端口的源
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的方法
+                .allowCredentials(true) // 允许携带凭证
+                .maxAge(3600); // 预检请求的有效期，单位为秒
     }
 }

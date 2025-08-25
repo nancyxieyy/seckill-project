@@ -56,3 +56,16 @@
 | `status`      | `TINYINT(4)`    |           | 订单状态：0-新建未支付, 1-已支付, 2-已发货, 3-已收货, 4-已退款, 5-已完成 |
 | `create_date` | `DATETIME`      |           | 订单的创建时间                                               |
 | `pay_date`    | `DATETIME`      |           | 支付时间                                                     |
+
+## 5. 购物车 (cart_item)
+
+存储购物车里的商品信息
+
+| 字段名          | 数据类型        | 主键/索引 | 注释                                   |
+| --------------- | --------------- | --------- | -------------------------------------- |
+| `id`          | `BIGINT(20)`    | PK        | 购物车项ID 
+| `user_id`     | `BIGINT(20)`    | INDEX     | 对应的用户ID                                                 |
+| `goods_id`    | `BIGINT(20)`    | INDEX     | 对应的商品ID 
+| `quantity` | `INT(11)`       |           | 商品数量
+| `create_date` | `DATETIME`      |           | 创建时间 
+| `update_date` | `DATETIME`      |           | 更新时间

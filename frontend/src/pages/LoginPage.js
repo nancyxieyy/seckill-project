@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import apiClient from "../api";
 
 // 简单的CSS样式
 const styles = {
@@ -29,7 +29,7 @@ function LoginPage() {
 
     // 注册
     const handleRegister = () => {
-        axios.post('http://localhost:8080/api/users/register', {
+        apiClient.post('http://localhost:8080/api/users/register', {
             nickname,
             password
         }).then(result => {
@@ -43,12 +43,21 @@ function LoginPage() {
 
     // 登录
     const handleLogin = () => {
-        axios.post('http://localhost:8080/api/users/login', {
+        apiClient.post('http://localhost:8080/api/users/login', {
             nickname,
             password
         }).then(result => {
-            alert('登录成功：' + result.data.data);
-            // 成功后处理 JWT Token
+            // 处理 JWT Token
+            const token = result.data.data;
+            if(token) {
+                // 1. 将Token存储到localStorage
+                localStorage.setItem('jwtToken', token);
+                alert('登录成功');
+                // 2. 成功后跳转商品列表
+                window.location.href = '/goods';
+            } else {
+                alert('登录失败: 不能获取到Token');
+            }
         }).catch(error => {
             console.error('登录失败' + error);
             alert('登录失败：' + (error.result ? error.result.data.message : error.message));
