@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import GoodsListPage from './pages/GoodsListPage';
 import CartPage from './pages/CartPage';
+import SeckillGoodsDetailPage from './pages/SeckillGoodsDetailPage';
 
 function App() {
   return (
@@ -13,12 +14,14 @@ function App() {
             <Link to="/" style={{margin: '10px'}}>登录</Link>
             <Link to="/goods" style={{margin: '10px'}}>商品列表</Link>
             <Link to="/cart" style={{margin: '10px'}}>我的购物车</Link>
+            <Link to="/seckill/1" style={{magrin: '10px'}}>秒杀商品</Link>
           </nav>
           <hr />
             <Routes>
               <Route path="/" element={<LoginPage />} />
               <Route path="/goods" element={<GoodsListPage />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/seckill/:goodsId" element={<SeckillGoodsDetailPage />} />
             </Routes>
         </div>
     </Router>

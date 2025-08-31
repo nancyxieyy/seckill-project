@@ -40,7 +40,19 @@
 | `start_date`    | `DATETIME`      |           | 秒杀活动的开始时间                     |
 | `end_date`      | `DATETIME`      |           | 秒杀活动的结束时间                     |
 
-## 4. 订单信息表 (order_info)
+## 4. 秒杀凭证表 (seckill_order)
+
+存储用户秒杀成功的记录，用于防止用户重复下单。
+
+| 字段名             | 数据类型     | 主键/索引                                  | 注释                                      |
+| ------------------ | ------------ | ------------------------------------------ | ----------------------------------------- |
+| `id`               | `BIGINT(20)` | PK                                         | 秒杀成功记录ID                            |
+| `user_id`          | `BIGINT(20)` | `(user_id, seckill_goods_id)` is UNIQUE    | 成功秒杀的用户ID                          |
+| `seckill_goods_id` | `BIGINT(20)` | `(user_id, seckill_goods_id)` is UNIQUE    | 成功秒杀的秒杀商品ID                      |
+| `order_id`         | `BIGINT(20)` | NULLABLE, INDEX                            | 关联的最终订单ID (`order_info`表的id)   |
+
+
+## 5. 订单信息表 (order_info)
 
 存储秒杀成功后生成的订单信息
 
@@ -57,7 +69,7 @@
 | `create_date` | `DATETIME`      |           | 订单的创建时间                                               |
 | `pay_date`    | `DATETIME`      |           | 支付时间                                                     |
 
-## 5. 购物车 (cart_item)
+## 6. 购物车 (cart_item)
 
 存储购物车里的商品信息
 
