@@ -35,7 +35,11 @@
 
 ![System Architecture Diagram](docs/images/architecture.png?v=2)
 
-## 4. 快速启动 (Quick Start)
+## 4. 数据库 ER 图 (Database ER Diagram)
+
+![System Architecture Diagram](docs/images/Database_ER_Diagram.png?v=2)
+
+## 5. 快速启动 (Quick Start)
 
 请确保你的本地环境已安装以下工具：
 * JDK 17+
@@ -44,28 +48,28 @@
 * MySQL 8.0+
 * Redis
 
-### 4.1 克隆项目
+### 5.1 克隆项目
 
 ```bash
 git clone git@github.com:nancyxieyy/seckill-project.git
 cd seckill-project
 ```
 
-### 4.2 启动后段服务
+### 5.2 启动后段服务
 
-#### 4.2.1 数据库准备
+#### 5.2.1 数据库准备
 
 * 启动你本地的 MySQL 服务
 * 连接到 MySQL (`/usr/local/mysql/bin/mysql -u root -p`)
 * 创建一个名为 `seckill` 的数据库: `CREATE DATABASE seckill CHARACTER SET utf8mb4`;
 
-#### 4.2.2 修改配置:
+#### 5.2.2 修改配置:
 
 * 打开 `backend/src/main/resources/application.properties` 文件
 
 * 修改 `spring.datasource.password` 为你自己的 MySQL 密码
 
-#### 4.2.3 运行后端:
+#### 5.2.3 运行后端:
 
 * 打开一个终端，进入 backend 目录。
 
@@ -73,25 +77,25 @@ cd seckill-project
 
 * 服务将启动在: `http://localhost:8080`
 
-### 4.3 启动前端服务
+### 5.3 启动前端服务
 
-#### 4.3.1 安装依赖:
+#### 5.3.1 安装依赖:
 
 * 打开另一个新的终端，进入 frontend 目录
 
 * 运行命令: `npm install`
 
-#### 4.3.2 运行前端:
+#### 5.3.2 运行前端:
 
 * 在上一个终端继续运行: `npm start`
 
 * 应用将启动在: `http://localhost:3000` (或 3001)
 
-### 4.4 访问应用
+### 5.4 访问应用
 
 * 在浏览器中打开 `http://localhost:3000` (或 3001) 即可看到前端页面
 
-## 5. 项目结构
+## 6. 项目结构
 
 ```bash
 seckill-project/
