@@ -6,11 +6,14 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "seckill_order")
+@Table(name = "seckill_order", uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "seckill_goods_id"})
+})
 public class SeckillOrder {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

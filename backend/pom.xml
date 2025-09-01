@@ -31,6 +31,13 @@
 	</properties>
 	<dependencies>
 
+		<!-- Redis需要的依赖 -->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis</artifactId>
+		</dependency>
+
 		<!-- JWT需要的依赖 -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
