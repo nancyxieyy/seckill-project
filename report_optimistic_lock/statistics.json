@@ -1,0 +1,34 @@
+{
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 5412,
+    "errorCount" : 5402,
+    "errorPct" : 99.81522,
+    "meanResTime" : 356.2483370288253,
+    "medianResTime" : 353.5,
+    "minResTime" : 2.0,
+    "maxResTime" : 781.0,
+    "pct1ResTime" : 482.0,
+    "pct2ResTime" : 577.3499999999995,
+    "pct3ResTime" : 671.0,
+    "throughput" : 531.0568148366206,
+    "receivedKBytesPerSec" : 184.71644711019525,
+    "sentKBytesPerSec" : 230.98889338632125
+  },
+  "POST Seckill Request" : {
+    "transaction" : "POST Seckill Request",
+    "sampleCount" : 5412,
+    "errorCount" : 5402,
+    "errorPct" : 99.81522,
+    "meanResTime" : 356.2483370288253,
+    "medianResTime" : 353.5,
+    "minResTime" : 2.0,
+    "maxResTime" : 781.0,
+    "pct1ResTime" : 482.0,
+    "pct2ResTime" : 577.3499999999995,
+    "pct3ResTime" : 671.0,
+    "throughput" : 531.0568148366206,
+    "receivedKBytesPerSec" : 184.71644711019525,
+    "sentKBytesPerSec" : 230.98889338632125
+  }
+}

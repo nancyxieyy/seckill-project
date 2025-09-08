@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import GoodsListPage from './pages/GoodsListPage';
 import CartPage from './pages/CartPage';
 import SeckillGoodsDetailPage from './pages/SeckillGoodsDetailPage';
+import ResultPage from './pages/ResultPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             <Link to="/goods" style={{margin: '10px'}}>商品列表</Link>
             <Link to="/cart" style={{margin: '10px'}}>我的购物车</Link>
             <Link to="/seckill/1" style={{magrin: '10px'}}>秒杀商品</Link>
+            <Link to="/seckill-result" style={{margin: '10px'}}>秒杀结果</Link>
           </nav>
           <hr />
             <Routes>
@@ -22,6 +24,7 @@ function App() {
               <Route path="/goods" element={<GoodsListPage />} />
               <Route path="/cart" element={<CartPage />} />
               <Route path="/seckill/:goodsId" element={<SeckillGoodsDetailPage />} />
+              <Route path="/seckill-result" element={<ResultPage />} />
             </Routes>
         </div>
     </Router>

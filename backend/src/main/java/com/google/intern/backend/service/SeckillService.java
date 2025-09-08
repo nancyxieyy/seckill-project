@@ -4,19 +4,26 @@ import java.lang.StackWalker.Option;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import org.slf4j.Logger;
 
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.intern.backend.config.RabbitMQConfig;
+import com.google.intern.backend.dto.SeckillMessageDto;
 import com.google.intern.backend.entity.Goods;
 import com.google.intern.backend.entity.OrderInfo;
 import com.google.intern.backend.entity.SeckillGoods;
 import com.google.intern.backend.entity.SeckillOrder;
+import com.google.intern.backend.exception.GlobalException;
+import com.google.intern.backend.exception.ResultCode;
 import com.google.intern.backend.repository.GoodsRepository;
 import com.google.intern.backend.repository.OrderInfoRepository;
 import com.google.intern.backend.repository.SeckillGoodsRepository;
@@ -53,97 +60,92 @@ public class SeckillService {
     @Autowired
     private GoodsRepository goodsRepository;
 
-    @Transactional
-    public OrderInfo doSeckill(Long userId, Long goodsId) {
-        // 1. 根据goodsId查询秒杀商品信息
-        // Optional<SeckillGoods> seckillGoodsOpt = seckillGoodsRepository.findByGoodsId(goodsId);
-        // if(seckillGoodsOpt.isEmpty()) {
-        //     throw new RuntimeException("秒杀商品不存在");
-        // }
-        // SeckillGoods seckillGoods = seckillGoodsOpt.get();
-        
-        // 2. 判断秒杀是否已经开始/结束
-        // Date now = new Date();
-        // if(now.before(seckillGoods.getStartDate())) {
-        //     throw new RuntimeException("秒杀尚未开始");
-        // }
-        // if(now.after(seckillGoods.getEndDate())) {
-        //     throw new RuntimeException("秒杀已经结束");
-        // }
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
-        // 3. 直接查询数据库，判断库存是否 > 0
-        // if(seckillGoods.getStockCount() <= 0) {
-        //     throw new RuntimeException("商品已售罄");
-        // }
+    
+    // @Transactional
+    // public OrderInfo doSeckill(Long userId, Long goodsId) {
+    //     // 1. 使用悲观锁查询和锁定秒杀商品行
+    //     Optional<SeckillGoods> seckillGoodsOpt = seckillGoodsRepository.findOneByGoodsId(goodsId);
+    //     if (seckillGoodsOpt.isEmpty()) {
+    //         throw new GlobalException(ResultCode.SECKILL_GOODS_NOT_FOUND);
+    //     }
+    //     SeckillGoods seckillGoods = seckillGoodsOpt.get();
 
-        // 4. 直接查询数据库，判断用户是否已经购买过
-        // Optional<SeckillOrder> seckillOrderOpt = seckillOrderRepository.findByUserIdAndSeckillGoodsId(userId, seckillGoods.getId());
-        // if(seckillOrderOpt.isPresent()) {
-        //     throw new RuntimeException("您已抢购过此商品");
-        // }
+    //     // 2. 判断时间
+    //     Date now = new Date();
+    //     if (now.before(seckillGoods.getStartDate())) {
+    //         throw new GlobalException(ResultCode.SECKILL_NOT_STARTED);
+    //     }
+    //     if (now.after(seckillGoods.getEndDate())) {
+    //         throw new GlobalException(ResultCode.SECKILL_ENDED);
+    //     }
 
+    //     // 3. 判断库存
+    //     if (seckillGoods.getStockCount() <= 0) {
+    //         throw new GlobalException(ResultCode.SECKILL_STOCK_EMPTY);
+    //     }
 
-        /**
-         * Redis更新：库存检查与扣减改为从Redis中操作
-         */
+    //     // 4. 判断是否重复下单
+    //     Optional<SeckillOrder> seckillOrderOpt = seckillOrderRepository.findByUserIdAndSeckillGoodsId(userId, seckillGoods.getId());
+    //     if (seckillOrderOpt.isPresent()) {
+    //         throw new GlobalException(ResultCode.SECKILL_REPEAT_PURCHASE);
+    //     }
+
+    //     // 5. 执行下单
+    //     seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
+    //     seckillGoodsRepository.save(seckillGoods);
+
+    //     Goods goods = goodsRepository.findById(goodsId).orElseThrow(() -> new RuntimeException("关联商品不存在"));
+
+    //     OrderInfo orderInfo = new OrderInfo();
+    //     orderInfo.setUserId(userId);
+    //     orderInfo.setGoodsId(goodsId);
+    //     orderInfo.setGoodsName(goods.getGoodsName());
+    //     orderInfo.setGoodsCount(1);
+    //     orderInfo.setGoodsPrice(seckillGoods.getSeckillPrice());
+    //     orderInfo.setOrderChannel(1);
+    //     orderInfo.setStatus(0);
+    //     orderInfoRepository.save(orderInfo);
+
+    //     SeckillOrder seckillOrder = new SeckillOrder();
+    //     seckillOrder.setUserId(userId);
+    //     seckillOrder.setSeckillGoodsId(seckillGoods.getId());
+    //     seckillOrder.setOrderId(orderInfo.getId());
+    //     seckillOrderRepository.save(seckillOrder);
+
+    //     return orderInfo;
+    // }
+
+    public void doSeckill(Long userId, Long goodsId) {
+        // 1. Redis中预减库存
         String stockKey = SECKILL_STOCK_KEY_PREFIX + goodsId;
         // 使用DECR命令，原子性地将库存-1，并返回更新后的库存值
         Long stock = redisTemplate.opsForValue().decrement(stockKey);
         if(stock == null) {
             // 如果key不存在，说明秒杀商品不存在
-            throw new RuntimeException("秒杀商品不存在");
+            throw new GlobalException(ResultCode.SECKILL_GOODS_NOT_FOUND);
         }
-
         if(stock < 0) {
             // 如果库存小于0，说明商品已售罄
             redisTemplate.opsForValue().increment(stockKey);
-            throw new RuntimeException("商品已售罄");
+            throw new GlobalException(ResultCode.SECKILL_STOCK_EMPTY);
         }
 
-        // 异步处理,防止超卖
-        logger.info("用户 {} 在Redis预减库存成功,准备创建订单...", userId);
-
-        // 判断用户是否已经购买过
-        Optional<SeckillGoods> seckillGoodsForId = seckillGoodsRepository.findByGoodsId(goodsId); 
-        if(seckillGoodsForId.isEmpty()) {
-            throw new RuntimeException("秒杀商品不存在");
-        }
-        Optional<SeckillOrder> seckillOrderOpt = seckillOrderRepository.findByUserIdAndSeckillGoodsId(userId, seckillGoodsForId.get().getId());
-        if(seckillOrderOpt.isPresent()) {
-            // 如果用户已经购买过，恢复Redis中的库存
+        // 2. 判断用户是否已经购买过
+        String userSetKey = "seckill:users:" + goodsId;
+        Long result = redisTemplate.opsForSet().add(userSetKey, String.valueOf(userId));
+        if(result == 0) {
             redisTemplate.opsForValue().increment(stockKey);
-            throw new RuntimeException("您已抢购过此商品");
+            // 用户已存在，说明已经购买过
+            throw new GlobalException(ResultCode.SECKILL_REPEAT_PURCHASE);
         }
 
-        // 5. 开始执行下单操作 (减库存、创建订单、创建秒杀订单)
-        // 在seckill_goods表中，库存-1
-        SeckillGoods seckillGoods = seckillGoodsForId.get();
-        seckillGoods.setStockCount(seckillGoods.getStockCount() - 1);
-        seckillGoodsRepository.save(seckillGoods);
-
-        // 获取商品快照信息
-        Goods goods = goodsRepository.findById(goodsId).orElseThrow(() -> new RuntimeException("关联商品不存在"));
-
-        // 在order_info表中，插入一条新的订单记录
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setUserId(userId);
-        orderInfo.setGoodsId(goodsId);
-        orderInfo.setGoodsName(goods.getGoodsName());   // 商品快照
-        orderInfo.setGoodsCount(1);
-        orderInfo.setGoodsPrice(seckillGoods.getSeckillPrice()); // 使用秒杀价
-        orderInfo.setOrderChannel(1); // 1-PC
-        orderInfo.setStatus(0); // 0-新建未支付
-        orderInfoRepository.save(orderInfo); // 保存后，orderInfo对象会获得数据库生成的ID
-
-        // 在seckill_order表中，插入一条秒杀成功的记录
-        SeckillOrder seckillOrder = new SeckillOrder();
-        seckillOrder.setUserId(userId);
-        seckillOrder.setSeckillGoodsId(seckillGoods.getId());
-        seckillOrder.setOrderId(orderInfo.getId());
-        seckillOrderRepository.save(seckillOrder);
-
-        // 6. 返回新创建的OrderInfo对象
-        return orderInfo;
+        // 3. 发送消息到RabbitMQ，异步处理下单操作
+        SeckillMessageDto message = new SeckillMessageDto(userId, goodsId);
+        rabbitTemplate.convertAndSend(RabbitMQConfig.SECKILL_QUEUE, message);
+        logger.info("用户 {} 秒杀商品 {} 的请求已发送到消息队列", userId, goodsId);
     }
 
     @PostConstruct
@@ -179,5 +181,60 @@ public class SeckillService {
             }
         }
         logger.info("成功加载 {} 个秒杀商品到Redis缓存", list.size());
+    }
+
+    public void resetTestEnvironment() {
+        // 1. 清理数据库
+        seckillOrderRepository.deleteAll();
+        orderInfoRepository.deleteAll();
+
+        // 2. 重置数据库库存和版本
+        List<SeckillGoods> allSeckillGoods = seckillGoodsRepository.findAll();
+        for (SeckillGoods good : allSeckillGoods) {
+            // 假设我们从 goods 表或其他地方知道初始库存是1000
+            good.setStockCount(1000); 
+            good.setVersion(0);
+            seckillGoodsRepository.save(good);
+        }
+
+        // 3. 清理 Redis 缓存并重新预热
+        // 获取所有相关的 Redis keys
+        Set<String> keys = redisTemplate.keys("seckill:*");
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+
+        // 4. 重新执行缓存预热
+        loadSeckillGoodsToCache();
+
+        logger.info("测试环境已重置！");
+    }
+
+    /**
+     * @param userId
+     * @param goodsId
+     * @return 订单信息，如果秒杀失败返回-1
+     */
+    public Long getSeckillResult(Long userId, Long goodsId) {
+        Optional<SeckillGoods> seckillGoodsOpt = seckillGoodsRepository.findByGoodsId(goodsId);
+        if (seckillGoodsOpt.isEmpty()) {
+            return -1L; // 表示没有这个秒杀活动
+        }
+        SeckillGoods seckillGoods = seckillGoodsOpt.get();
+
+        Optional<SeckillOrder> seckillOrderOpt = seckillOrderRepository.findByUserIdAndSeckillGoodsId(userId, seckillGoods.getId());
+    
+        if (seckillOrderOpt.isPresent()) {
+            return seckillOrderOpt.get().getOrderId(); // 成功，返回订单ID
+        } else {
+            // 还需要判断是不是已经售罄了
+            String stockKey = SECKILL_STOCK_KEY_PREFIX + goodsId;
+            String stock = redisTemplate.opsForValue().get(stockKey);
+            if (stock == null || Integer.parseInt(stock) <= 0) {
+                return -1L; // 已售罄，也算失败
+            } else {
+                return 0L; // 还在排队中
+            }
+        }
     }
 }

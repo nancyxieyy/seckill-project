@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collections;
 import java.util.Map;
 
-@CrossOrigin("http://localhost:3001")
+@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/api") // 给Controller里的所有接口加上 /api 的前缀
 public class HelloController {

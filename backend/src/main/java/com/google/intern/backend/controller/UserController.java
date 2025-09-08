@@ -15,7 +15,7 @@ import com.google.intern.backend.result.Result;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin("http://localhost:3001")
+@CrossOrigin("http://localhost:3000")
 public class UserController {
     @Autowired
     private UserService userService;

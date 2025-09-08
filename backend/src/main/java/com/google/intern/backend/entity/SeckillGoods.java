@@ -26,6 +26,9 @@ public class SeckillGoods {
     @Column(name = "stock_count")
     private Integer stockCount;
 
+    @Version
+    private Integer version;
+
     @Column(name = "start_date")
     private Date startDate;
 

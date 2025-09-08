@@ -10,7 +10,7 @@ import com.google.intern.backend.entity.OrderInfo;
 
 @RestController
 @RequestMapping("api/orders")
-@CrossOrigin("http://localhost:3001")
+@CrossOrigin("http://localhost:3000")
 public class OrderInfoController {
     @Autowired
     private OrderInfoService orderInfoService;

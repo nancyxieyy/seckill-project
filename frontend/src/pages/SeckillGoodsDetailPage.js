@@ -8,10 +8,14 @@ function SeckillGoodsDetailPage() {
 
     const [goodsDetail, setGoodsDetail] = useState(null);
     const [seckillStatus, setSeckillStatus] = useState({
-        status: 0, // 0: 秒杀未开始, 1: 秒杀进行中, 2: 秒杀已结束
+        status: -1, // -1:加载中, 0: 秒杀未开始, 1: 秒杀进行中, 2: 秒杀已结束
         remainSeconds: 0
     })
     const [error, setError] = useState('');
+
+    // 用来管理秒杀请求的结果
+    // '等待秒杀', '排队中...', '秒杀成功', '秒杀失败'
+    const [seckillResult, setSeckillResult] = useState('等待秒杀');
 
     useEffect(() => {
         if(!goodsId) return;
@@ -71,13 +75,49 @@ function SeckillGoodsDetailPage() {
 
     // 点击秒杀按钮的处理函数
     const handleDoSeckill = () => {
+        setSeckillResult('请求发送中...');
         apiClient.post('/seckill/do_seckill', { goodsId: goodsId }).then(result => {
-            alert('秒杀成功! 订单ID: ' + result.data.data.id);
+            // 后端返回“排队中”，我们开始轮询
+            setSeckillResult('排队中...');
+            startPolling(); // 调用开始轮询的函数
         }).catch(error => {
             console.error("秒杀失败!", error);
-            alert('秒杀失败: ' + (error.response ? error.response.data.message : error.message));
+            setSeckillResult("秒杀失败: " + (error.response? error.response.data.message : error.message));
         });
     };
+
+    // 轮询函数
+    const startPolling = () => {
+        let pollCount = 0;
+        const maxPolls = 10; // 最多轮询10次
+
+        const pollInterval = setInterval(() => {
+            apiClient.get(`/seckill/result/${goodsId}`).then(result => {
+                pollCount++;
+                const res = result.data.data;
+                if(res > 0) {
+                    // 成功
+                    clearInterval(pollInterval);
+                    setSeckillResult(`秒杀成功! 订单ID: ${res}`);
+                } else if(res < 0) {
+                    // 秒杀失败
+                    clearInterval(pollInterval);
+                    setSeckillResult('秒杀失败');
+                } else {
+                    // 继续轮询
+                    setSeckillResult(`排队中... (第 ${pollCount} 次查询)`);
+                    if(pollCount >= maxPolls) {
+                        clearInterval(pollInterval);
+                        setSeckillResult('秒杀请求超时，请稍后再试');
+                    }
+                }
+            }).catch(error => {
+                clearInterval(pollInterval);
+                console.error("轮询失败!", error);
+                setSeckillResult('查询结果失败');
+            });
+        }, 1500);
+    }
 
     if(error) {
         return <div>{error}</div>;
@@ -90,9 +130,9 @@ function SeckillGoodsDetailPage() {
     return (
         <div>
             <h1>秒杀商品详情</h1>
-            {/* 你可以加入更多商品信息，比如 goods.goodsName 等 */}
-            <p>秒杀价格: ￥{goodsDetail.seckillPrice}</p>
-            <p>库存: {goodsDetail.stockCount}</p>
+            {/* ... 其他商品信息 ... */}
+            <p>秒杀价格: ￥{goodsDetail?.seckillPrice}</p>
+            <p>库存: {goodsDetail?.stockCount}</p>
             
             <div>
                 {seckillStatus.status === 0 && <span>秒杀倒计时: {seckillStatus.remainSeconds} 秒</span>}
@@ -102,9 +142,9 @@ function SeckillGoodsDetailPage() {
             
             <button 
                 onClick={handleDoSeckill}
-                disabled={seckillStatus.status !== 1} // 只有在“进行中”状态才能点击
+                disabled={seckillStatus.status !== 1 || seckillResult !== '等待秒杀'}
             >
-                立即秒杀
+                {seckillResult === '等待秒杀' ? '立即秒杀' : seckillResult}
             </button>
         </div>
     );

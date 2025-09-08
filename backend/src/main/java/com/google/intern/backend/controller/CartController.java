@@ -24,7 +24,7 @@ import com.google.intern.backend.util.JwtUtil;
 
 @RestController
 @RequestMapping("/api/cart")
-@CrossOrigin("http://localhost:3001")
+@CrossOrigin("http://localhost:3000")
 public class CartController {
     @Autowired
     private CartService cartService;

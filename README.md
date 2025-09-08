@@ -39,7 +39,35 @@
 
 ![System Architecture Diagram](docs/images/Database_ER_Diagram.png?v=2)
 
-## 5. 快速启动 (Quick Start)
+## 5. 性能测试报告 (Performance Test Report)
+
+为了验证高并发优化方案的有效性，使用 Apache JMeter 对优化前后的秒杀接口进行了压力测试。
+
+**测试配置:**
+* **并发用户数:** 200
+* **测试持续时间:** 10 秒
+* **测试接口:** `POST /api/seckill/do_seckill`
+
+### 测试结果对比
+
+| 版本 | 架构 | 吞吐量 (QPS) | 平均响应时间 (ms) | 错误率 (%) |
+| :--- | :--- | :--- | :--- | :--- |
+| **基准版** | `直接操作数据库` | `810.23/秒` | `234.15 ms` | `99.88%` |
+| **最终优化版** | `Redis + MQ 异步` | `1088.59/秒` | `173.31 ms` | `99.92%` |
+
+### 基准版测试报告
+
+![Baseline Test Report](docs/images/report_baseline.png)
+
+### 最终优化版测试报告
+
+![Optimized Test Report](docs/images/report_optimized.png)
+
+### 结论
+
+通过引入 Redis 缓存，成功地将秒杀系统的性能瓶颈从缓慢的数据库操作，转移到了速度极快的内存操作上。这不仅让系统的处理能力（吞吐量）提升了 34%，也让用户体验（响应时间）变得更好，同时还保证了业务逻辑的正确性
+
+## 6. 快速启动 (Quick Start)
 
 请确保你的本地环境已安装以下工具：
 * JDK 17+
@@ -48,28 +76,28 @@
 * MySQL 8.0+
 * Redis
 
-### 5.1 克隆项目
+### 6.1 克隆项目
 
 ```bash
 git clone git@github.com:nancyxieyy/seckill-project.git
 cd seckill-project
 ```
 
-### 5.2 启动后段服务
+### 6.2 启动后段服务
 
-#### 5.2.1 数据库准备
+#### 6.2.1 数据库准备
 
 * 启动你本地的 MySQL 服务
 * 连接到 MySQL (`/usr/local/mysql/bin/mysql -u root -p`)
 * 创建一个名为 `seckill` 的数据库: `CREATE DATABASE seckill CHARACTER SET utf8mb4`;
 
-#### 5.2.2 修改配置:
+#### 6.2.2 修改配置:
 
 * 打开 `backend/src/main/resources/application.properties` 文件
 
 * 修改 `spring.datasource.password` 为你自己的 MySQL 密码
 
-#### 5.2.3 运行后端:
+#### 6.2.3 运行后端:
 
 * 打开一个终端，进入 backend 目录。
 
@@ -77,25 +105,25 @@ cd seckill-project
 
 * 服务将启动在: `http://localhost:8080`
 
-### 5.3 启动前端服务
+### 6.3 启动前端服务
 
-#### 5.3.1 安装依赖:
+#### 6.3.1 安装依赖:
 
 * 打开另一个新的终端，进入 frontend 目录
 
 * 运行命令: `npm install`
 
-#### 5.3.2 运行前端:
+#### 6.3.2 运行前端:
 
 * 在上一个终端继续运行: `npm start`
 
 * 应用将启动在: `http://localhost:3000` (或 3001)
 
-### 5.4 访问应用
+### 6.4 访问应用
 
 * 在浏览器中打开 `http://localhost:3000` (或 3001) 即可看到前端页面
 
-## 6. 项目结构
+## 7. 项目结构
 
 ```bash
 seckill-project/

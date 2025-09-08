@@ -18,7 +18,11 @@ function GoodsListPage() {
         apiClient.post('/cart', {goodsId:goodsId, quantity:1}).then(result => {
             alert('添加成功');
         }).catch(error => {
-            alert('添加失败: ' + error.response.data.message);
+            if(error.response && error.response.data){
+                alert('添加失败: ' + error.response.data.message);
+            } else {
+                alert('添加失败: ' + error.message);
+            }
             console.error("添加到购物车失败！", error);
         });
     };

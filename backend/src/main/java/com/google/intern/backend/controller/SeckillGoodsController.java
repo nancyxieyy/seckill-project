@@ -16,7 +16,7 @@ import com.google.intern.backend.entity.SeckillGoods;
 
 @RestController
 @RequestMapping("/api/seckill-goods")
-@CrossOrigin("http://localhost:3001")
+@CrossOrigin("http://localhost:3000")
 public class SeckillGoodsController {
     @Autowired
     private SeckillGoodsService seckillGoodsService;
