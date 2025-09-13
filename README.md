@@ -71,7 +71,7 @@
 
 请确保你的本地环境已安装以下工具：
 * JDK 17+
-* Node.js v20+ (通过 nvm 安装)
+* Node.js v20+
 * Maven 3.8+
 * MySQL 8.0+
 * Redis

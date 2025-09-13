@@ -18,7 +18,7 @@ public class SeckillGoodsService {
         return seckillGoodsRepository.findAll();
     }
 
-    public Optional<SeckillGoods> findById(Long id) {
-        return seckillGoodsRepository.findById(id);
+    public Optional<SeckillGoods> findByGoodsId(Long goodsId) {
+        return seckillGoodsRepository.findByGoodsId(goodsId);
     }
 }

@@ -26,12 +26,12 @@ public class SeckillGoodsController {
         return seckillGoodsService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<SeckillGoods> getSeckillGoodsById(@PathVariable Long id) {
-        Optional<SeckillGoods> seckillGoodsOpt = seckillGoodsService.findById(id);
+    @GetMapping("/goods/{goodsId}")
+    public ResponseEntity<SeckillGoods> getSeckillGoodsById(@PathVariable Long goodsId) {
+        Optional<SeckillGoods> seckillGoodsOpt = seckillGoodsService.findByGoodsId(goodsId);
 
         return seckillGoodsOpt
-            .map(goods -> ResponseEntity.ok(goods)) // 如果找到了，返回200和商品数据
+            .map(ResponseEntity::ok) // 如果找到了，返回200和商品数据
             .orElse(ResponseEntity.notFound().build()); // 如果没找到，返回404
     }
 }

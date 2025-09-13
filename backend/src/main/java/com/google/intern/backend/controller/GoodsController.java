@@ -3,7 +3,9 @@ package com.google.intern.backend.controller;
 import com.google.intern.backend.entity.Goods;
 import com.google.intern.backend.service.GoodsService;
 
+import java.lang.StackWalker.Option;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,7 @@ public class GoodsController {
         return goodsService.findAll();
     }
 
-    @GetMapping("/{goodsName}")
+    @GetMapping("/name/{goodsName}")
     public ResponseEntity<List<Goods>> getGoodsByGoodsName(@PathVariable String goodsName) {
         List<Goods> goodsList = goodsService.findByName(goodsName);
 
@@ -33,5 +35,14 @@ public class GoodsController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(goodsList);
+    }
+
+    @GetMapping("/id/{id}")
+    public ResponseEntity<Goods> getGoodsById(@PathVariable Long id) {
+        Optional<Goods> goodsOpt = goodsService.findById(id);
+
+        return goodsOpt
+            .map(goods -> ResponseEntity.ok(goods)) // 如果找到了，返回200和商品数据
+            .orElse(ResponseEntity.notFound().build()); // 如果没找到，返回404
     }
 }

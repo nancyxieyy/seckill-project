@@ -28,8 +28,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:3001") // 允许来自3001端口的源
+                .allowedOrigins("http://localhost:3000") // 允许来自3000端口的源
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的方法
+                .allowedHeaders("*")
                 .allowCredentials(true) // 允许携带凭证
                 .maxAge(3600); // 预检请求的有效期，单位为秒
     }

@@ -4,6 +4,7 @@ import com.google.intern.backend.entity.Goods;
 import com.google.intern.backend.repository.GoodsRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,5 +21,9 @@ public class GoodsService {
 
     public List<Goods> findByName(String goodsName) {
         return goodsRepository.findByGoodsName(goodsName);
+    }
+
+    public Optional<Goods> findById(Long id) {
+        return goodsRepository.findById(id);
     }
 }
