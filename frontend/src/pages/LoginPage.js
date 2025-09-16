@@ -87,7 +87,7 @@ function LoginPage() {
                 }}
             >
                 <Typography component="h1" variant="h5">
-                登录 / 注册
+                Login / Register
                 </Typography>
                 <Box component="form" noValidate sx={{ mt: 1 }}>
                 <TextField
@@ -95,7 +95,7 @@ function LoginPage() {
                     required
                     fullWidth
                     id="nickname"
-                    label="用户昵称"
+                    label="username"
                     name="nickname"
                     autoFocus
                     value={nickname}
@@ -106,7 +106,7 @@ function LoginPage() {
                     required
                     fullWidth
                     name="password"
-                    label="密码"
+                    label="password"
                     type="password"
                     id="password"
                     value={password}
@@ -118,7 +118,7 @@ function LoginPage() {
                     sx={{ mt: 3, mb: 1 }}
                     onClick={handleLogin}
                 >
-                    登 录
+                    Login
                 </Button>
                 <Button
                     fullWidth
@@ -126,7 +126,7 @@ function LoginPage() {
                     sx={{ mb: 2 }}
                     onClick={handleRegister}
                 >
-                    注 册
+                    Register
                 </Button>
                 <Button
                     fullWidth
@@ -134,7 +134,7 @@ function LoginPage() {
                     startIcon={<GoogleIcon />}
                     onClick={handleGoogleLogin}
                 >
-                    使用 Google 账号登录
+                    Use Google Account to Login
                 </Button>
                 </Box>
             </Box>

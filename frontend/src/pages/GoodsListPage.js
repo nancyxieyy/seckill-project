@@ -1,9 +1,11 @@
 import React, {useState, useEffect} from "react";
 import apiClient from "../api";
+import { Link as RouterLink } from 'react-router-dom';
+import SearchSortBar from "../components/SearchSortBar";
 
 // 引入MUI组件
 import { 
-    Grid, Card, CardMedia, CardContent, Typography, CardActions, Button, Container,
+    Card, CardMedia, CardContent, Typography, CardActions, Button, Container,
     TextField, Box, FormControl, InputLabel, Select, MenuItem 
 } from '@mui/material';
 
@@ -11,6 +13,7 @@ function GoodsListPage() {
     const [goods, setGoods] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [sortOrder, setSortOrder] = useState('');
+    const [viewList, setViewList] = useState([]);
 
     useEffect(() => {
         // 加载组件时，获取商品列表
@@ -37,84 +40,156 @@ function GoodsListPage() {
         });
     };
 
-    // 根据搜索和排序条件，过滤和排序商品
-    const filteredAndSortedGoods = goods.filter(item => 
-            item.goodsName.toLowerCase().includes(searchTerm.toLowerCase())
-        ).sort((a, b) => {
-            if (sortOrder === 'price_asc') {
-                return a.goodsPrice - b.goodsPrice;
-            }
-            if (sortOrder === 'price_desc') {
-                return b.goodsPrice - a.goodsPrice;
-            }
-            return 0;
-        });
-
     return (
         <Container sx={{ py: 2 }}>
             <Typography variant="h4" component="h1" gutterBottom>
-                全部商品
+                All Products
             </Typography>
-            
-            {/* 搜索和排序控制栏 */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-                <TextField 
-                    label="搜索商品" 
-                    variant="outlined"
-                    size="small"
-                    sx={{ width: '300px' }}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                />
-                <FormControl size="small" sx={{ minWidth: 150 }}>
-                    <InputLabel>排序方式</InputLabel>
-                    <Select
-                        value={sortOrder}
-                        label="排序方式"
-                        onChange={(e) => setSortOrder(e.target.value)}
-                    >
-                        <MenuItem value=""><em>默认</em></MenuItem>
-                        <MenuItem value="price_asc">价格从低到高</MenuItem>
-                        <MenuItem value="price_desc">价格从高到低</MenuItem>
-                    </Select>
-                </FormControl>
-            </Box>
 
-            <Grid container spacing={4}>
-                {filteredAndSortedGoods.map(item => (
-                    // 为了让 Card 的 height: '100%' 生效，Grid item 也需要是 flex 布局
-                    <Grid item key={item.id} xs={12} sm={6} md={4} sx={{ display: 'flex' }}>
+            <SearchSortBar
+                items={goods}
+                onChange={(list) => setViewList(list)}
+            />
+
+            {/* 使用 CSS Grid */}
+            <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)', 
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)'
+            },
+            gap: 3,
+            '& > *': {
+                height: '450px' // 强制所有子元素等高
+            }
+            }}>
+            {viewList.map(item => (
+                <Card 
+                key={item.id}
+                sx={{ 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '450px', // 固定高度
+                    overflow: 'hidden' // 防止溢出
+                }}
+                >
+                {/* 图片区域 */}
+                <RouterLink to={`/goods/${item.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Box sx={{ 
+                        height: '200px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#fafafa',
+                        padding: 1,
+                        flexShrink: 0 // 不允许压缩
+                    }}>
+                        <CardMedia
+                        component="img"
+                        sx={{
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                            objectFit: 'contain'
+                        }}
+                        image={item.goodsImg}
+                        alt={item.goodsName}
+                        />
+                    </Box>
+                </RouterLink>
+                
+                {/* 文字内容区 */}
+                <RouterLink to={`/goods/${item.id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex' }}>
+                    <CardContent sx={{ 
+                        flex: 1,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        padding: '16px',
+                        minHeight: 0, // 允许压缩
+                        overflow: 'hidden'
+                    }}>
                         
-                        {/* Card 设置为 flex 纵向布局，并占满父容器 */}
-                        <Card sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-                            <CardMedia
-                                component="img"
-                                sx={{ aspectRatio: '1 / 1', objectFit: 'contain', padding: 2 }}
-                                image={item.goodsImg}
-                                alt={item.goodsName}
-                            />
-                            {/* CardContent 设置为自动伸展，填充所有可用空间 */}
-                            <CardContent sx={{ flexGrow: 1 }}>
-                                <Typography gutterBottom variant="h6" component="h2">
-                                    {item.goodsName}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {item.goodsTitle}
-                                </Typography>
-                            </CardContent>
-                            {/* CardActions 会被自动推到卡片底部 */}
-                            <CardActions>
-                                <Typography variant="h5" component="p" sx={{ flexGrow: 1 }}>
-                                    ${item.goodsPrice}
-                                </Typography>
-                                <Button size="small" onClick={() => handleAddToCart(item.id)}>加入购物车</Button>
-                            </CardActions>
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
+                        {/* 商品标题 */}
+                        <Typography 
+                        variant="h6" 
+                        component="h2"
+                        sx={{
+                            fontSize: '0.95rem',
+                            fontWeight: 500,
+                            lineHeight: '1.3',
+                            marginBottom: 1,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            fontWeight: 500
+                        }}
+                        >
+                        {item.goodsName}
+                        </Typography>
+
+                        {/* 商品描述 */}
+                        <Typography 
+                        variant="body2" 
+                        color="text.secondary"
+                        sx={{
+                            fontSize: '0.8rem',
+                            lineHeight: '1.3',
+                            flex: 1,
+                            // 强制换行
+                            wordWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            overflowWrap: 'break-word',
+                            whiteSpace: 'normal',
+                            // 最多显示2行
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                        }}
+                        >
+                        {item.goodsTitle}
+                        </Typography>
+                    </CardContent>
+                </RouterLink>
+                
+
+                {/* 底部操作区 */}
+                <CardActions sx={{ 
+                    padding: '8px 16px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexShrink: 0 // 不允许压缩
+                }}>
+                    <Typography 
+                    variant="h5" 
+                    component="span"
+                    sx={{ 
+                        fontSize: '1.2rem',
+                        fontWeight: 'bold',
+                        color: 'primary.main'
+                    }}
+                    >
+                    ${item.goodsPrice}
+                    </Typography>
+                    <Button 
+                    size="small" 
+                    variant="contained"
+                    sx={{ 
+                        fontSize: '0.75rem',
+                        padding: '4px 12px'
+                    }}
+                    onClick={() => handleAddToCart(item.id)}
+                    >
+                    Add to Cart
+                    </Button>
+                </CardActions>
+                </Card>
+            ))}
+            </Box>
         </Container>
-    );
+);
 }
 
 export default GoodsListPage;

@@ -107,5 +107,6 @@ INSERT INTO `goods`(`id`, `goods_name`, `goods_title`, `goods_detail`, `goods_pr
 
 -- 插入2个秒杀商品
 INSERT INTO `seckill_goods`(`goods_id`, `seckill_price`, `stock_count`, `start_date`, `end_date`) VALUES
+(2, 9.99, 10, '2025-09-01 00:00:00', '2025-09-15 23:59:59'),
 (3, 29.99, 50, '2025-09-01 00:00:00', '2025-09-30 23:59:59'),
-(4, 9.99, 100, '2025-09-15 00:00:00', '2025-09-30 23:59:59');
+(4, 9.99, 100, '2025-09-25 00:00:00', '2025-09-30 23:59:59');

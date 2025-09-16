@@ -6,6 +6,7 @@ import CartPage from './pages/CartPage';
 import SeckillGoodsDetailPage from './pages/SeckillGoodsDetailPage';
 import SeckillListPage from './pages/SeckillListPage';
 import Header from './components/Header';
+import GoodsDetailPage from './pages/GoodsDetailPage';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/goods" element={<GoodsListPage />} />
+          <Route path="/goods/:goodsId" element={<GoodsDetailPage />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/seckill" element={<SeckillListPage />} />
           <Route path="/seckill/:goodsId" element={<SeckillGoodsDetailPage />} />

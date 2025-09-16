@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Typography } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 
-function Countdown({ targetDate, onComplete }) {
+
+function Countdown({ targetDate, onComplete, sx }) {
     const calculateTimeLeft = () => {
         const difference = +new Date(targetDate) - +new Date();
         let timeLeft = {};
 
         if (difference > 0) {
             timeLeft = {
-                '天': Math.floor(difference / (1000 * 60 * 60 * 24)),
-                '小时': Math.floor((difference / (1000 * 60 * 60)) % 24),
-                '分钟': Math.floor((difference / 1000 / 60) % 60),
-                '秒': Math.floor((difference / 1000) % 60),
+                days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((difference / 1000 / 60) % 60),
+                seconds: Math.floor((difference / 1000) % 60),
             };
         }
         return timeLeft;
@@ -24,29 +25,99 @@ function Countdown({ targetDate, onComplete }) {
             const newTimeLeft = calculateTimeLeft();
             setTimeLeft(newTimeLeft);
             if (Object.keys(newTimeLeft).length === 0) {
-                onComplete(); // 倒计时结束时，调用父组件传来的回调函数
+                onComplete && onComplete(); // 倒计时结束时，调用父组件传来的回调函数
             }
         }, 1000);
 
         return () => clearTimeout(timer);
     });
 
-    const timerComponents = [];
-    Object.keys(timeLeft).forEach((interval) => {
-        if (!timeLeft[interval] && interval !== 'seconds' && interval !== 'minutes') {
-            return;
-        }
-        timerComponents.push(
-            <span key={interval}>
-                {timeLeft[interval]} {interval}{" "}
-            </span>
+    // 格式化数字，确保两位数显示
+    const formatTime = (time) => {
+        return time < 10 ? `0${time}` : time;
+    };
+
+    // 如果倒计时结束
+    if (Object.keys(timeLeft).length === 0) {
+        return (
+            <Typography 
+                variant="body1" 
+                sx={{
+                    color: '#d63031',
+                    fontWeight: 'bold',
+                    ...sx
+                }}
+            >
+                时间到!
+            </Typography>
         );
-    });
+    }
 
     return (
-        <Typography variant="h5">
-            {timerComponents.length ? timerComponents : <span>时间到!</span>}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+            {/* 天数 */}
+            {timeLeft.days > 0 && (
+                <>
+                    <Box sx={{
+                        backgroundColor: '#d63031',
+                        color: 'white',
+                        padding: '2px 4px',
+                        borderRadius: '2px',
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        minWidth: '20px',
+                        textAlign: 'center'
+                    }}>
+                        {formatTime(timeLeft.days)}
+                    </Box>
+                    <Typography variant="caption" sx={{ color: '#d63031', fontWeight: 'bold' }}>天</Typography>
+                </>
+            )}
+            
+            {/* 小时 */}
+            <Box sx={{
+                backgroundColor: '#d63031',
+                color: 'white',
+                padding: '2px 4px',
+                borderRadius: '2px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                minWidth: '20px',
+                textAlign: 'center'
+            }}>
+                {formatTime(timeLeft.hours)}
+            </Box>
+            <Typography variant="caption" sx={{ color: '#d63031', fontWeight: 'bold' }}>:</Typography>
+            
+            {/* 分钟 */}
+            <Box sx={{
+                backgroundColor: '#d63031',
+                color: 'white',
+                padding: '2px 4px',
+                borderRadius: '2px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                minWidth: '20px',
+                textAlign: 'center'
+            }}>
+                {formatTime(timeLeft.minutes)}
+            </Box>
+            <Typography variant="caption" sx={{ color: '#d63031', fontWeight: 'bold' }}>:</Typography>
+            
+            {/* 秒 */}
+            <Box sx={{
+                backgroundColor: '#d63031',
+                color: 'white',
+                padding: '2px 4px',
+                borderRadius: '2px',
+                fontSize: '0.8rem',
+                fontWeight: 'bold',
+                minWidth: '20px',
+                textAlign: 'center'
+            }}>
+                {formatTime(timeLeft.seconds)}
+            </Box>
+        </Box>
     );
 }
 
